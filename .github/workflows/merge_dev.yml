@@ -1,0 +1,33 @@
+name: Merge dev
+on:
+  push:
+    branches: [HU**, FIX**]
+jobs:
+  correr-test-funcionalidad:
+    name: Correr-test
+    if:  ${{ contains(github.event.head_commit.message, 'DONE') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.7.12"
+          channel: "stable"
+          cache: true
+      - run: flutter pub get
+      - run: flutter test
+  
+  merge-ramafuncion-desarrollo:
+    name: Merge-dev
+    needs: correr-test-funcionalidad
+    runs-on: ubuntu-latest
+    steps:
+    - name: Mezcla ${{ github.ref }} -> develop
+      uses: devmasx/merge-branch@master
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        from_branch: ${{ github.ref }}
+        target_branch: develop
+
+
+      
